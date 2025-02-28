@@ -1,0 +1,4 @@
+project_id: speech-agent-439509
+credentials_json: ./credentials/key.json
+region: us-central1
+model_name: gemini-1.5-pro-002
