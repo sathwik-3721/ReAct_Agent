@@ -1,17 +1,12 @@
-from vertexai.generative_models import HarmBlockThreshold
-from vertexai.generative_models import GenerationConfig
-from vertexai.generative_models import GenerativeModel
-from vertexai.generative_models import HarmCategory
-from vertexai.generative_models import Part
+from google.generativeai import GenerationConfig, GenerativeModel
+from google.generativeai.types import HarmCategory, HarmBlockThreshold, SafetySettingDict
 from src.config.logging import logger
-from typing import Optional
-from typing import Dict
-from typing import List 
+from typing import Optional, List
 
 
 def _create_generation_config() -> GenerationConfig:
     """
-    Creates and returns a generation configuration.
+    Creates and returns a generation configuration for the Gemini API.
     """
     try:
         gen_config = GenerationConfig(
@@ -19,7 +14,6 @@ def _create_generation_config() -> GenerationConfig:
             top_p=1.0,
             candidate_count=1,
             max_output_tokens=8192,
-            seed=12345
         )
         return gen_config
     except Exception as e:
@@ -27,32 +21,32 @@ def _create_generation_config() -> GenerationConfig:
         raise
 
 
-def _create_safety_settings() -> Dict[HarmCategory, HarmBlockThreshold]:
+def _create_safety_settings() -> List[SafetySettingDict]:
     """
-    Creates safety settings for content generation.
+    Creates safety settings for content generation using the Gemini API.
     """
     try:
-        safety_settings = {
-            HarmCategory.HARM_CATEGORY_UNSPECIFIED: HarmBlockThreshold.BLOCK_NONE,
-            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-            HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE
-        }
+        safety_settings = [
+            {"category": HarmCategory.HARM_CATEGORY_HATE_SPEECH, "threshold": HarmBlockThreshold.BLOCK_NONE},
+            {"category": HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, "threshold": HarmBlockThreshold.BLOCK_NONE},
+            {"category": HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, "threshold": HarmBlockThreshold.BLOCK_NONE},
+            {"category": HarmCategory.HARM_CATEGORY_HARASSMENT, "threshold": HarmBlockThreshold.BLOCK_NONE},
+            # {"category": HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY, "threshold": HarmBlockThreshold.BLOCK_NONE},
+        ]
         return safety_settings
     except Exception as e:
         logger.error(f"Error creating safety settings: {e}")
         raise
 
 
-def generate(model: GenerativeModel, contents: List[Part]) -> Optional[str]:
+def generate(model: GenerativeModel, contents: List[str]) -> Optional[str]:
     """
     Generates a response using the provided model and contents.
-    
+
     Args:
         model (GenerativeModel): The generative model instance.
-        contents (List[Part]): The list of content parts.
-    
+        contents (List[str]): The list of content parts (as strings).
+
     Returns:
         Optional[str]: The generated response text, or None if an error occurs.
     """

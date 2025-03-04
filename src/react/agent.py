@@ -1,18 +1,18 @@
-from vertexai.generative_models import GenerativeModel 
 from src.tools.serp import search as google_search
 from src.tools.wiki import search as wiki_search
-from vertexai.generative_models import Part 
+from google.generativeai import GenerativeModel 
 from src.utils.io import write_to_file
 from src.config.logging import logger
 from src.config.setup import config
 from src.llm.gemini import generate
+import google.generativeai as genai
 from src.utils.io import read_file
 from pydantic import BaseModel
 from typing import Callable
-from pydantic import Field 
+from pydantic import Field
 from typing import Union
-from typing import List 
-from typing import Dict 
+from typing import List
+from typing import Dict
 from enum import Enum
 from enum import auto
 import json
@@ -22,6 +22,7 @@ Observation = Union[str, Exception]
 
 PROMPT_TEMPLATE_PATH = "./data/input/react.txt"
 OUTPUT_TRACE_PATH = "./data/output/trace.txt"
+
 
 class Name(Enum):
     """
@@ -252,9 +253,9 @@ class Agent:
         Returns:
             str: The model's response as a string.
         """
-        contents = [Part.from_text(prompt)]
-        response = generate(self.model, contents)
+        response = generate(self.model, [prompt])  # Pass prompt as a list of strings
         return str(response) if response is not None else "No response from Gemini"
+
 
 def run(query: str) -> str:
     """
@@ -266,7 +267,11 @@ def run(query: str) -> str:
     Returns:
         str: The agent's final answer.
     """
-    gemini = GenerativeModel(config.MODEL_NAME)
+    # configure the Gemini API key
+    genai.configure(api_key=config.GEMINI_API_KEY)
+
+    # initialize gemini model
+    gemini = genai.GenerativeModel(model_name=config.MODEL_NAME)  # Initialize Gemini model
 
     agent = Agent(model=gemini)
     agent.register(Name.WIKIPEDIA, wiki_search)
@@ -280,4 +285,3 @@ if __name__ == "__main__":
     query = "What is the age of the oldest tree in the country that has won the most FIFA World Cup titles?"
     final_answer = run(query)
     logger.info(final_answer)
-    

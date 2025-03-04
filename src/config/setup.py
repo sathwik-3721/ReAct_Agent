@@ -1,8 +1,6 @@
 from src.config.logging import logger
-from typing import Dict
-from typing import Any
+from typing import Dict, Any
 import yaml
-import os
 
 
 class Config:
@@ -27,10 +25,7 @@ class Config:
         self.__initialized = True
         
         self.__config = self._load_config(config_path)
-        self.PROJECT_ID = self.__config['project_id']
-        self.REGION = self.__config['region']
-        self.CREDENTIALS_PATH = self.__config['credentials_json']
-        self._set_google_credentials(self.CREDENTIALS_PATH)
+        self.GEMINI_API_KEY = self.__config['gemini_api_key']
         self.MODEL_NAME = self.__config['model_name']
 
     @staticmethod
@@ -49,16 +44,8 @@ class Config:
                 return yaml.safe_load(file)
         except Exception as e:
             logger.error(f"Failed to load the configuration file. Error: {e}")
-
-    @staticmethod
-    def _set_google_credentials(credentials_path: str) -> None:
-        """
-        Set the Google application credentials environment variable.
-
-        Args:
-        - credentials_path (str): Path to the Google credentials file.
-        """
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
+            raise
 
 
+# Create a singleton instance of the Config class
 config = Config()
