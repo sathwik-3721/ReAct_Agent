@@ -2,5 +2,5 @@
 # credentials_json: ./credentials/key.json
 # region: us-central1
 # model_name: gemini-1.5-pro-002
-gemini_api_key: AIzaSyAtSEMeOuaVQDWE6D7xR05aU8AqsZE_ZL0
+gemini_api_key: <GEMINI_API_KEY(get it from aistudio.google.com)>
 model_name: gemini-2.0-pro-exp-02-05
